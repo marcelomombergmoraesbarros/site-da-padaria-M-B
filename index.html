@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padaria São Judas Tadeu - Painel & Carrinho</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap');
+
+        :root {
+            --madeira-escura: #2d1b0f;
+            --amarelo-destaque: #f1c40f;
+            --vermelho-menu: #c0392b;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--madeira-escura);
+            background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+            color: #f5f5f5;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+        .card-produto {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card-produto:hover {
+            transform: translateY(-8px);
+            border-color: var(--amarelo-destaque);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .btn-amarelo {
+            background-color: var(--amarelo-destaque);
+            color: #000;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-amarelo:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: var(--vermelho-menu); border-radius: 10px; }
+
+        .badge-carrinho {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: var(--amarelo-destaque);
+            color: black;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Menu Superior -->
+    <header class="sticky top-0 z-50 bg-red-800 shadow-2xl p-4 border-b border-yellow-600/20">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-yellow-400 p-2 rounded-lg text-red-800">
+                    <i class="fas fa-bread-slice text-xl"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tighter uppercase hidden sm:inline">São Judas Tadeu</span>
+            </div>
+            
+            <nav class="hidden lg:flex space-x-8 font-medium items-center">
+                <a href="#inicio" class="hover:text-yellow-400 transition">Início</a>
+                <a href="#catalogo" class="hover:text-yellow-400 transition">Produtos</a>
+                <a href="#encomendas" class="hover:text-yellow-400 transition">Encomendas</a>
+                <button onclick="abrirAdmin()" class="bg-black/30 px-4 py-1.5 rounded-full text-xs hover:bg-black/50 border border-white/10">
+                    <i class="fas fa-lock mr-2"></i>Admin
+                </button>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <!-- Ícone Carrinho -->
+                <button onclick="toggleCarrinho()" class="relative p-2 hover:bg-white/10 rounded-full transition">
+                    <i class="fas fa-shopping-basket text-2xl text-yellow-400"></i>
+                    <span id="cart-count" class="badge-carrinho">0</span>
+                </button>
+                <button onclick="toggleMenu()" class="lg:hidden text-2xl"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="hidden lg:hidden flex flex-col space-y-4 mt-4 bg-red-900 p-6 rounded-xl border border-white/10">
+            <a href="#inicio" onclick="toggleMenu()">Início</a>
+            <a href="#catalogo" onclick="toggleMenu()">Produtos</a>
+            <a href="#encomendas" onclick="toggleMenu()">Encomendas</a>
+            <button onclick="abrirAdmin()" class="text-left"><i class="fas fa-lock mr-2"></i>Admin</button>
+        </div>
+    </header>
+
+    <!-- Banner Hero -->
+    <section id="inicio" class="relative h-[500px] flex items-center justify-center text-center px-4 overflow-hidden">
+        <div class="absolute inset-0 bg-black/60 z-10"></div>
+        <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1400&q=80" alt="Padaria" class="absolute inset-0 w-full h-full object-cover">
+        <div class="relative z-20 max-w-3xl">
+            <h1 class="text-5xl md:text-7xl mb-6 text-yellow-400 leading-tight">Tradição em cada fornada</h1>
+            <p class="text-xl md:text-2xl mb-10 text-gray-200">Desde 1995 produzindo pães artesanais com o carinho que sua família merece.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#catalogo" class="btn-amarelo px-10 py-4 rounded-full text-lg">Explorar Cardápio</a>
+                <a href="#encomendas" class="bg-white/10 hover:bg-white/20 backdrop-blur-md px-10 py-4 rounded-full text-lg border border-white/30">Fazer Encomenda</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Produtos -->
+    <section id="catalogo" class="py-20 container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+            <div>
+                <h2 class="text-4xl text-yellow-400 mb-2">Nossas Delícias</h2>
+                <p class="text-gray-400 italic">Selecione uma categoria para filtrar</p>
+            </div>
+            <!-- Filtros Modernos -->
+            <div class="flex flex-wrap gap-2">
+                <button onclick="filtrar('todos')" class="filter-btn active bg-yellow-500 text-black px-6 py-2 rounded-full font-bold">Todos</button>
+                <button onclick="filtrar('pães')" class="filter-btn bg-white/5 hover:bg-white/10 px-6 py-2 rounded-full">Pães</button>
+                <button onclick="filtrar('bolos')" class="filter-btn bg-white/5 hover:bg-white/10 px-6 py-2 rounded-full">Bolos</button>
+                <button onclick="filtrar('doces')" class="filter-btn bg-white/5 hover:bg-white/10 px-6 py-2 rounded-full">Doces</button>
+                <button onclick="filtrar('salgados')" class="filter-btn bg-white/5 hover:bg-white/10 px-6 py-2 rounded-full">Salgados</button>
+            </div>
+        </div>
+
+        <div id="grid-produtos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Produtos inseridos via JS -->
+        </div>
+    </section>
+
+    <!-- Encomendas Personalizadas -->
+    <section id="encomendas" class="py-20 bg-black/30 border-y border-white/5">
+        <div class="container mx-auto px-4">
+            <div class="max-w-5xl mx-auto bg-gradient-to-br from-stone-800 to-stone-900 rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+                <div class="grid md:grid-cols-2">
+                    <div class="p-10 md:p-16 flex flex-col justify-center">
+                        <h2 class="text-4xl text-yellow-400 mb-6 font-bold">Encomendas de Bolos e Festas</h2>
+                        <p class="text-gray-300 mb-8 leading-relaxed">
+                            Organizando um evento? Fazemos bolos personalizados, centos de salgados e kits completos para o seu aniversário ou reunião empresarial.
+                        </p>
+                        <div class="space-y-4 text-sm text-gray-400">
+                            <div class="flex items-center"><i class="fas fa-clock text-yellow-500 mr-3"></i> Antecedência mínima de 24h</div>
+                            <div class="flex items-center"><i class="fas fa-truck text-yellow-500 mr-3"></i> Entrega grátis num raio de 5km</div>
+                            <div class="flex items-center"><i class="fas fa-check text-yellow-500 mr-3"></i> Pagamento facilitado no PIX</div>
+                        </div>
+                    </div>
+                    <div class="bg-white/5 p-10 md:p-16">
+                        <form id="form-encomenda" class="space-y-4 text-black">
+                            <input type="text" id="enc-nome" placeholder="Seu Nome Completo" class="w-full p-4 rounded-xl focus:ring-2 ring-yellow-400 outline-none" required>
+                            <input type="tel" id="enc-tel" placeholder="Seu WhatsApp (com DDD)" class="w-full p-4 rounded-xl focus:ring-2 ring-yellow-400 outline-none" required>
+                            <select id="enc-tipo" class="w-full p-4 rounded-xl focus:ring-2 ring-yellow-400 outline-none" required>
+                                <option value="">O que você precisa?</option>
+                                <option value="Bolo de Aniversário">Bolo de Aniversário</option>
+                                <option value="Kit Festa (Salgados)">Kit Festa (Salgados)</option>
+                                <option value="Cesta de Café da Manhã">Cesta de Café da Manhã</option>
+                            </select>
+                            <textarea id="enc-obs" placeholder="Detalhes (sabores, data e horário...)" class="w-full p-4 rounded-xl h-32 focus:ring-2 ring-yellow-400 outline-none"></textarea>
+                            <button type="submit" class="w-full btn-amarelo py-4 rounded-xl uppercase tracking-widest shadow-lg">Enviar pelo WhatsApp</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 bg-black/80 mt-10">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex justify-center space-x-8 mb-8 text-3xl">
+                <a href="#" class="text-gray-400 hover:text-yellow-400 transition"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-gray-400 hover:text-yellow-400 transition"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="text-gray-400 hover:text-yellow-400 transition"><i class="fab fa-whatsapp"></i></a>
+            </div>
+            <p class="text-gray-500 text-sm">© 2026 Padaria São Judas Tadeu. Marcelo & Bryan - Projeto Integrador.</p>
+        </div>
+    </footer>
+
+    <!-- PAINEL CARRINHO (Lateral) -->
+    <div id="carrinho-lateral" class="fixed inset-y-0 right-0 w-full md:w-[400px] bg-stone-900 z-[100] transform translate-x-full transition-transform duration-300 shadow-[-10px_0_30px_rgba(0,0,0,0.5)] border-l border-white/10 flex flex-col">
+        <div class="p-6 bg-red-800 flex justify-between items-center shadow-lg">
+            <h2 class="text-xl font-bold"><i class="fas fa-shopping-cart mr-2"></i> Meu Pedido</h2>
+            <button onclick="toggleCarrinho()" class="text-2xl hover:rotate-90 transition inline-block">&times;</button>
+        </div>
+        
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4">
+            <!-- Itens via JS -->
+            <div class="text-center py-20 text-gray-500 italic">Seu carrinho está vazio...</div>
+        </div>
+
+        <div class="p-6 bg-black/40 border-t border-white/10">
+            <div class="flex justify-between text-2xl font-bold mb-6 text-yellow-400">
+                <span>Total:</span>
+                <span id="cart-total">R$ 0,00</span>
+            </div>
+            <button onclick="finalizarCompra()" class="w-full btn-amarelo py-4 rounded-xl text-lg flex justify-center items-center">
+                Confirmar e Comprar <i class="fab fa-whatsapp ml-3 text-xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL ADMIN (CRUD) -->
+    <div id="modal-admin" class="fixed inset-0 bg-black/95 z-[200] hidden items-center justify-center p-4">
+        <div class="bg-stone-900 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl border border-yellow-400/50 shadow-2xl p-6 md:p-10">
+            <div class="flex justify-between items-center mb-10 border-b border-white/10 pb-6">
+                <div>
+                    <h2 class="text-3xl text-yellow-400 font-bold">Painel de Gestão</h2>
+                    <p class="text-gray-400 text-sm mt-1">Gerencie produtos e preços em tempo real.</p>
+                </div>
+                <button onclick="fecharAdmin()" class="bg-red-600/20 text-red-500 px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition">Sair do Painel</button>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-10">
+                <!-- Formulário -->
+                <div class="lg:col-span-1">
+                    <form id="form-crud" class="space-y-4 text-black">
+                        <input type="hidden" id="edit-id">
+                        <div>
+                            <label class="text-white text-xs mb-1 block">Nome do Produto</label>
+                            <input type="text" id="prod-nome" placeholder="Ex: Pão Sovado" class="w-full p-3 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="text-white text-xs mb-1 block">Preço (R$)</label>
+                            <input type="number" step="0.01" id="prod-preco" placeholder="0.00" class="w-full p-3 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="text-white text-xs mb-1 block">Categoria</label>
+                            <select id="prod-cat" class="w-full p-3 rounded-lg">
+                                <option value="pães">Pães</option>
+                                <option value="bolos">Bolos</option>
+                                <option value="doces">Doces</option>
+                                <option value="salgados">Salgados</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-white text-xs mb-1 block">URL da Imagem</label>
+                            <input type="text" id="prod-img" placeholder="https://..." class="w-full p-3 rounded-lg">
+                        </div>
+                        <button type="submit" id="btn-salvar" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition shadow-lg">
+                            Cadastrar Produto
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Lista de Gestão -->
+                <div class="lg:col-span-2 bg-black/20 rounded-2xl p-4 overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="text-yellow-400 border-b border-white/10 uppercase text-xs">
+                            <tr>
+                                <th class="p-3">Item</th>
+                                <th class="p-3">Preço</th>
+                                <th class="p-3">Categoria</th>
+                                <th class="p-3 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-admin" class="text-gray-300">
+                            <!-- Gerado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- BASE DE DADOS (Inicia com Padrão ou LocalStorage) ---
+        let produtos = JSON.parse(localStorage.getItem('padaria_produtos')) || [
+            { id: 1, nome: "Pão Francês", preco: 0.80, categoria: "pães", imagem: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=400" },
+            { id: 2, nome: "Bolo de Cenoura", preco: 25.00, categoria: "bolos", imagem: "https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=400" },
+            { id: 3, nome: "Sonho de Creme", preco: 5.50, categoria: "doces", imagem: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400" },
+            { id: 4, nome: "Coxinha de Frango", preco: 7.00, categoria: "salgados", imagem: "https://images.unsplash.com/photo-1573537805874-469601391788?w=400" }
+        ];
+
+        let carrinho = [];
+
+        // --- FUNÇÕES DE PERSISTÊNCIA ---
+        function salvarDados() {
+            localStorage.setItem('padaria_produtos', JSON.stringify(produtos));
+            renderizarVitrine();
+            renderizarAdmin();
+        }
+
+        // --- VITRINE DO CLIENTE ---
+        function renderizarVitrine(filtro = 'todos') {
+            const grid = document.getElementById('grid-produtos');
+            grid.innerHTML = '';
+            
+            const lista = filtro === 'todos' ? produtos : produtos.filter(p => p.categoria === filtro);
+
+            lista.forEach(p => {
+                grid.innerHTML += `
+                    <div class="card-produto rounded-3xl p-5 flex flex-col">
+                        <div class="h-44 w-full rounded-2xl overflow-hidden mb-4 relative">
+                            <img src="${p.imagem || 'https://via.placeholder.com/400'}" class="w-full h-full object-cover">
+                            <span class="absolute top-2 right-2 bg-black/50 backdrop-blur px-3 py-1 rounded-full text-[10px] uppercase font-bold">${p.categoria}</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-1">${p.nome}</h3>
+                        <p class="text-2xl font-bold text-yellow-400 mt-auto">R$ ${parseFloat(p.preco).toFixed(2)}</p>
+                        <button onclick="adicionarAoCarrinho(${p.id})" class="mt-4 btn-amarelo py-2.5 rounded-xl w-full flex items-center justify-center">
+                            <i class="fas fa-plus mr-2 text-xs"></i> Adicionar
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function filtrar(cat) {
+            const btns = document.querySelectorAll('.filter-btn');
+            btns.forEach(b => b.classList.remove('active', 'bg-yellow-500', 'text-black'));
+            event.target.classList.add('active', 'bg-yellow-500', 'text-black');
+            renderizarVitrine(cat);
+        }
+
+        // --- CARRINHO DE COMPRAS ---
+        function toggleCarrinho() {
+            document.getElementById('carrinho-lateral').classList.toggle('translate-x-full');
+        }
+
+        function adicionarAoCarrinho(id) {
+            const p = produtos.find(prod => prod.id == id);
+            const itemExistente = carrinho.find(c => c.id == id);
+
+            if (itemExistente) {
+                itemExistente.qtd++;
+            } else {
+                carrinho.push({ ...p, qtd: 1 });
+            }
+            
+            atualizarCarrinho();
+            
+            // Efeito visual no ícone
+            const icon = document.getElementById('cart-count');
+            icon.classList.add('scale-150');
+            setTimeout(() => icon.classList.remove('scale-150'), 200);
+        }
+
+        function atualizarCarrinho() {
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            const countEl = document.getElementById('cart-count');
+            
+            container.innerHTML = '';
+            let total = 0;
+            let totalQtd = 0;
+
+            carrinho.forEach((item, index) => {
+                total += item.preco * item.qtd;
+                totalQtd += item.qtd;
+                container.innerHTML += `
+                    <div class="flex items-center space-x-4 bg-white/5 p-3 rounded-xl border border-white/5">
+                        <img src="${item.imagem}" class="w-12 h-12 object-cover rounded-lg">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm">${item.nome}</h4>
+                            <p class="text-xs text-yellow-400">R$ ${item.preco.toFixed(2)} x ${item.qtd}</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                             <button onclick="removerCarrinho(${index})" class="text-red-500 hover:text-white transition"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (carrinho.length === 0) {
+                container.innerHTML = '<div class="text-center py-20 text-gray-500 italic">Seu carrinho está vazio...</div>';
+            }
+
+            totalEl.innerText = `R$ ${total.toFixed(2)}`;
+            countEl.innerText = totalQtd;
+        }
+
+        function removerCarrinho(idx) {
+            carrinho.splice(idx, 1);
+            atualizarCarrinho();
+        }
+
+        function finalizarCompra() {
+            if (carrinho.length === 0) return alert("Adicione produtos primeiro!");
+            
+            let msg = "*PEDIDO PADARIA SÃO JUDAS TADEU*\n\n";
+            let total = 0;
+            carrinho.forEach(i => {
+                msg += `🍞 ${i.nome} (${i.qtd}x) - R$ ${(i.preco * i.qtd).toFixed(2)}\n`;
+                total += i.preco * i.qtd;
+            });
+            msg += `\n*TOTAL: R$ ${total.toFixed(2)}*`;
+            
+            const url = `https://wa.me/5511000000000?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        }
+
+        // --- PAINEL ADMINISTRATIVO (CRUD) ---
+        function abrirAdmin() {
+            const senha = prompt("Acesso restrito. Digite a senha:");
+            if (senha === "julio") {
+                document.getElementById('modal-admin').style.display = 'flex';
+                renderizarAdmin();
+            } else {
+                alert("Senha incorreta!");
+            }
+        }
+
+        function fecharAdmin() {
+            document.getElementById('modal-admin').style.display = 'none';
+            limparForm();
+        }
+
+        document.getElementById('form-crud').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const item = {
+                id: id ? parseInt(id) : Date.now(),
+                nome: document.getElementById('prod-nome').value,
+                preco: parseFloat(document.getElementById('prod-preco').value),
+                categoria: document.getElementById('prod-cat').value,
+                imagem: document.getElementById('prod-img').value
+            };
+
+            if (id) {
+                const idx = produtos.findIndex(p => p.id == id);
+                produtos[idx] = item;
+            } else {
+                produtos.unshift(item);
+            }
+
+            salvarDados();
+            limparForm();
+        });
+
+        function renderizarAdmin() {
+            const lista = document.getElementById('lista-admin');
+            lista.innerHTML = '';
+            produtos.forEach(p => {
+                lista.innerHTML += `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                        <td class="p-3 font-bold text-white">${p.nome}</td>
+                        <td class="p-3">R$ ${parseFloat(p.preco).toFixed(2)}</td>
+                        <td class="p-3 italic text-gray-500">${p.categoria}</td>
+                        <td class="p-3 text-right space-x-3">
+                            <button onclick="carregarParaEditar(${p.id})" class="text-blue-400 hover:text-white"><i class="fas fa-edit"></i></button>
+                            <button onclick="excluirItem(${p.id})" class="text-red-500 hover:text-white"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function carregarParaEditar(id) {
+            const p = produtos.find(item => item.id == id);
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('prod-nome').value = p.nome;
+            document.getElementById('prod-preco').value = p.preco;
+            document.getElementById('prod-cat').value = p.categoria;
+            document.getElementById('prod-img').value = p.imagem;
+            document.getElementById('btn-salvar').innerText = "Atualizar Produto";
+            document.getElementById('btn-salvar').classList.replace('bg-green-600', 'bg-blue-600');
+        }
+
+        function excluirItem(id) {
+            if (confirm("Deseja apagar este produto do catálogo?")) {
+                produtos = produtos.filter(p => p.id != id);
+                salvarDados();
+            }
+        }
+
+        function limparForm() {
+            document.getElementById('form-crud').reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('btn-salvar').innerText = "Cadastrar Produto";
+            document.getElementById('btn-salvar').classList.replace('bg-blue-600', 'bg-green-600');
+        }
+
+        // --- ENCOMENDAS ---
+        document.getElementById('form-encomenda').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const texto = `*ENCOMENDA ESPECIAL*\n\n*Nome:* ${document.getElementById('enc-nome').value}\n*Tipo:* ${document.getElementById('enc-tipo').value}\n*OBS:* ${document.getElementById('enc-obs').value}`;
+            window.open(`https://wa.me/5511000000000?text=${encodeURIComponent(texto)}`, '_blank');
+        });
+
+        function toggleMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        window.onload = () => {
+            renderizarVitrine();
+        }
+    </script>
+</body>
+</html>
